@@ -12,6 +12,9 @@ namespace CMP1903M_Assessment_1_Base_Code
     {
         static void Main()
         {
+            // Force UTF-8 output
+            Console.OutputEncoding = Encoding.UTF8;
+
             string text = "";
             Input input = new Input();
                 
