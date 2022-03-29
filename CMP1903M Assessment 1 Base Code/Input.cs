@@ -29,19 +29,29 @@ namespace CMP1903M_Assessment_1_Base_Code
             
             ConsoleGUI.WriteLine("",1);
             ConsoleGUI.WriteLine("Enter your text. You can use the enter key for new lines. When finished, " +
-                "enter double semi-colons (;;) at the end of a line. Note: Any double semi-colons in " +
-                "the middle of a sentence will be corrected to one semi-colon for you.",
+                "enter double semi-colons (;;) at the end of a line. ", 1);
+
+            ConsoleGUI.WriteLine("Note that any double semi-colons in the middle of a sentence will be corrected " +
+                "to one semi-colon for you. Double spaces will also be corrected.",
                 1);
             ConsoleGUI.WriteLine("<borderTop>", 2, false);
 
             while (true)
             {
                 string input = ConsoleGUI.ReadLine("", 2);
+                input = input.Replace("  ", " ");
 
+                // Check and replace double semi-colons in middle of input.
                 if (input.Length > 2 && input.Trim().Remove(input.Length - 2, 2).Contains(";;"))
                 {
-                    // Replaces double semi-colons in the middle of input.
                     input = input.Replace(";;", "; ");
+                    ConsoleGUI.ReplaceLine(input, 2);
+                }
+
+                // Check and replace double spaces in input.
+                if (input.Length > 2 && input.Contains("  "))
+                {
+                    input = input.Replace("  ", " ");
                     ConsoleGUI.ReplaceLine(input, 2);
                 }
 

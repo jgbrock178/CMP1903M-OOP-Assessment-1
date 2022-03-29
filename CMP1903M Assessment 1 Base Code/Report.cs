@@ -25,7 +25,7 @@ namespace CMP1903M_Assessment_1_Base_Code
 
             foreach (var metric in metrics)
             {
-                ConsoleGUI.WriteLine($"Number of {metric.Key.PadRight(max_metric_length)} : {metric.Value}", 1);
+                ConsoleGUI.WriteLine($"  Number of {metric.Key.PadRight(max_metric_length)} : {metric.Value}", 1);
             }
             
             ConsoleGUI.WriteLine("<hr>", 1);
@@ -138,10 +138,10 @@ namespace CMP1903M_Assessment_1_Base_Code
         /// <returns>Returns a string representing the final filename saved.</returns>
         public static string longWordsToFile(Dictionary<string, int> words, string filename)
         {
-            filename = $"./{filename}.txt";
+            string fullFilename = $"./{filename}.txt";
             
             // Check file doesn't already exist.
-            if (File.Exists(filename))
+            if (File.Exists(fullFilename))
             {
                 string option = ConsoleGUI.GetValidatedUserInput("File exists - overwrite? [Y]es or [N]o:",
                     new string[] {"y", "n"}, borderLevel: 1, closingBorder: true);
@@ -151,18 +151,19 @@ namespace CMP1903M_Assessment_1_Base_Code
                     // append numbers and check for existence until a new file can be written.
                     while (true)
                     {
-                        filename = $"./{filename}-{i}.txt";
-                        if (!File.Exists(filename))
+                        fullFilename = $"./{filename}-{i}.txt";
+                        if (!File.Exists(fullFilename))
                         {
                             break;
                         }
+                        i++;
                     }
                 }
             }
             List<String> lines = words.Select(s => s.Key).Where(w => w.Length >= 7).ToList();
             
-            File.WriteAllLinesAsync(filename, lines);
-            return filename;
+            File.WriteAllLinesAsync(fullFilename, lines);
+            return fullFilename;
         }
     }
 }

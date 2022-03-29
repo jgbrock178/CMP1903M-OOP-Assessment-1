@@ -244,10 +244,16 @@ public class ConsoleGUI
     /// </summary>
     public static void PrintTitle()
     {
-        WriteLine("", 1);
         WriteLine("<hr>", 1);
-        WriteLine("TEXT ANALYSER", 1);
-        WriteLine("Analyse your text!", 1);
+        WriteLine(@"  _______        _                          _                     ", 1);
+        WriteLine(@" |__   __|      | |       /\               | |                    ", 1);
+        WriteLine(@"    | | _____  _| |_     /  \   _ __   __ _| |_   _ ___  ___ _ __ ", 1);
+        WriteLine(@"    | |/ _ \ \/ / __|   / /\ \ | '_ \ / _` | | | | / __|/ _ \ '__|", 1);
+        WriteLine(@"    | |  __/>  <| |_   / ____ \| | | | (_| | | |_| \__ \  __/ |   ", 1);
+        WriteLine(@"    |_|\___/_/\_\\__| /_/    \_\_| |_|\__,_|_|\__, |___/\___|_|   ", 1);
+        WriteLine(@"                                               __/ |              ", 1);
+        WriteLine(@"                                              |___/               ", 1);
+        WriteLine("", 1);
         WriteLine("<hr>", 1);
     }
     
@@ -257,7 +263,8 @@ public class ConsoleGUI
     public static void PrintMainMenu()
     {
         WriteLine("What would you like to do?", 1);
-        WriteLine("  1) Write text via console", 1);
+        WriteLine("", 1);
+        WriteLine("  1) Manually write text", 1);
         WriteLine("  2) Import text file", 1);
         WriteLine("  3) Perform analyse test", 1);
         WriteLine("  4) Quit", 1);

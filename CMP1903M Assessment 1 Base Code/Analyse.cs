@@ -25,6 +25,7 @@ namespace CMP1903M_Assessment_1_Base_Code
             values.Add("characters", CountCharacters(input));
             values.Add("vowels", CountVowels(input));
             values.Add("consonants", CountConsonants(input));
+            values.Add("spaces", CountSpaces(input));
             values.Add("uppercase letters", CountUppercaseLetters(input));
             values.Add("lowercase letters", CountLowercaseLetters(input));
             values.Add("numbers", CountNumbers(input));
@@ -166,6 +167,17 @@ namespace CMP1903M_Assessment_1_Base_Code
         {
             return CountRegexMatches(text, @"[0-9]");
         }
+
+        /// <summary>
+        /// Counts the number of spaces in the input text.
+        /// </summary>
+        /// <param name="text">the text to be analysed.</param>
+        /// <returns>Integer representng the number of spaces.</returns>
+        int CountSpaces(string text)
+        {
+            return CountRegexMatches(text, @"[ ]");
+        }
+
 
         /// <summary>
         /// Performs regex using the input pattern to count the number of occurrences matching the pattern.

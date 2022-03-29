@@ -43,13 +43,16 @@ namespace CMP1903M_Assessment_1_Base_Code
                     ConsoleGUI.WriteLine("<hr>", 1);
                     if (TestAnalysis.ValidateTestFile())
                     {
-                        ConsoleGUI.WriteLine("Test file validated - Analysis working correctly", 1);
+                        ConsoleGUI.WriteLine("Test file validated - Analysis working correctly.", 1);
                     }
                     else
                     {
                         ConsoleGUI.WriteLine("Oh no! Test file NOT validated. Something's wrong.", 1);
                     }
                     ConsoleGUI.WriteLine("<hr>", 1);
+                    ConsoleGUI.WriteLine("Test Validation Complete!", 1);
+                    ConsoleGUI.WriteLine("<hr>");
+                    Thread.Sleep(1000);
                     continue;
                 }
 
@@ -78,13 +81,18 @@ namespace CMP1903M_Assessment_1_Base_Code
                 Analyse analysis = new Analyse();
 
                 Dictionary<string, int> wordAnalysis = analysis.WordList(text);
+                int maxWordLength = 0;
+                if (wordAnalysis.Count > 0)
+                {
+                    maxWordLength = wordAnalysis.Max(x => x.Key.Length);
+                }
 
                 Report.outputToConsole(analysis.AnalyseText(text), analysis.LetterFrequency(text),
                     wordAnalysis);
                 
                 ConsoleGUI.WriteLine("<hr>", 1);
 
-                if (wordAnalysis.Count > 0)
+                if (wordAnalysis.Count > 0 && maxWordLength >= 7)
                 {
                     option = ConsoleGUI.GetValidatedUserInput("Write long words to file? [Y]es or [N]o:",
                         new string[] {"y", "n"}, borderLevel: 1, closingBorder: true);
@@ -96,10 +104,19 @@ namespace CMP1903M_Assessment_1_Base_Code
                         ConsoleGUI.WriteLine($"File saved as {filename}", 1);
                     
                     }
-                    ConsoleGUI.WriteLine("<hr>", 1);
                 }
+                else if (wordAnalysis.Count == 0)
+                {
+                    ConsoleGUI.WriteLine("There are no words.", 1);
+                }
+                else
+                {
+                    ConsoleGUI.WriteLine("There are no long words (with 7 or more characters).", 1);
+                }
+                ConsoleGUI.WriteLine("<hr>", 1);
                 ConsoleGUI.WriteLine("Analysis Complete!", 1);
                 ConsoleGUI.WriteLine("<hr>");
+                Thread.Sleep(1000);
             }
         }
     }
