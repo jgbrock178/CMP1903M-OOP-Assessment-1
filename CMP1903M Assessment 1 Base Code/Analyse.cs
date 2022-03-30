@@ -145,7 +145,7 @@ namespace CMP1903M_Assessment_1_Base_Code
         /// <returns>Integer representing the total number of terminators.</returns>
         int CountSentenceTerminators(string text)
         {
-            return CountRegexMatches(text, @"([\.\?\!…] |[\.\?\!…][\r|\n]|[\.\?\!…]$)");
+            return CountRegexMatches(text, @"([\.\?\!…;] |[\.\?\!…;][\r|\n]|[\.\?\!…;]$)");
         }
 
         /// <summary>

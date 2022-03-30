@@ -34,12 +34,19 @@ namespace CMP1903M_Assessment_1_Base_Code
             while (true)
             {
                 string input = ConsoleGui.ReadLine("");
-                input = input.Replace("  ", " ");
 
                 // Check and replace double semi-colons in middle of input.
                 if (input.Length > 2 && input.Trim().Remove(input.Length - 2, 2).Contains(";;"))
                 {
-                    input = input.Replace(";;", "; ");
+                    // Checks whether there is a terminator at the end.
+                    if (input.Trim().EndsWith(";;"))
+                    {
+                        input = input.Trim().Remove(input.Length - 2, 2).Replace(";;", "; ") + ";;";
+                    }
+                    else
+                    {
+                        input = input.Replace(";;", "; ");
+                    }
                     ConsoleGui.ReplaceLine(input);
                 }
 
