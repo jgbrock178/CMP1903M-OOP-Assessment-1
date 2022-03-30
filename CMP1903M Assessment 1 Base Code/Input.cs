@@ -1,34 +1,123 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace CMP1903M_Assessment_1_Base_Code
 {
+    /// <summary>
+    /// Handles all input from the user via the console.
+    /// </summary>
     public class Input
     {
-        //Handles the text input for Assessment 1
-        string text = "nothing";
-        
-        //Method: manualTextInput
-        //Arguments: none
-        //Returns: string
-        //Gets text input from the keyboard
-        public string manualTextInput()
-        {
+        /// <value>
+        /// The <c>text</c> property represents the manual text input via the user.
+        /// Other classes can access the value, but only this class can set it.
+        /// Example of ENCAPSULATION.
+        /// </value>
+        private string Text { get; set; } = "";
 
-            return text;
+        /// <summary>
+        /// Prompts the user to enter text. Will accept multiple lines of text.
+        /// Tells the user to enter a double semi-colons when complete.
+        /// </summary>
+        /// <returns>String containing the all the text the user entered.</returns>
+        public string ManualTextInput()
+        {
+            Text = "";
+
+            ConsoleGui.WriteLine("");
+            ConsoleGui.WriteLine("Enter your text. You can use the enter key for new lines. When finished, " +
+                "enter double semi-colons (;;) at the end of a line. ");
+
+            ConsoleGui.WriteLine("Note that any double semi-colons in the middle of a sentence will be corrected " +
+                "to one semi-colon for you. Double spaces will also be corrected.");
+            ConsoleGui.SetBorder(2);
+            ConsoleGui.WriteLine("<borderTop>");
+
+            while (true)
+            {
+                string input = ConsoleGui.ReadLine("");
+
+                // Check and replace double semi-colons in middle of input.
+                if (input.Length > 2 && input.Trim().Remove(input.Length - 2, 2).Contains(";;"))
+                {
+                    // Checks whether there is a terminator at the end.
+                    if (input.Trim().EndsWith(";;"))
+                    {
+                        input = input.Trim().Remove(input.Length - 2, 2).Replace(";;", "; ") + ";;";
+                    }
+                    else
+                    {
+                        input = input.Replace(";;", "; ");
+                    }
+                    ConsoleGui.ReplaceLine(input);
+                }
+
+                // Check and replace double spaces in input.
+                if (input.Length > 2 && input.Contains("  "))
+                {
+                    input = input.Replace("  ", " ");
+                    ConsoleGui.ReplaceLine(input);
+                }
+
+                if (input.Trim().EndsWith(";;"))
+                {
+                    input = input.Remove(input.Length - 2, 2).Trim();
+                    
+                    if (input.Length > 0)
+                    {
+                        Text += input;
+                        ConsoleGui.WriteLine("<borderBottom>");
+                    }
+                    else
+                    {
+                        ConsoleGui.ReplaceLine("<borderBottom>");
+                    }
+                    ConsoleGui.SetBorder(1);
+                    return Text;
+                }
+                else
+                {
+                    Text += $"{input}\n";
+                }
+            }
         }
 
-        //Method: fileTextInput
-        //Arguments: string (the file path)
-        //Returns: string
-        //Gets text input from a .txt file
-        public string fileTextInput(string fileName)
+        /// <summary>
+        /// Prompts the user for a filepath and then loads the contents of te file.
+        /// </summary>
+        /// <returns>String representation of the file contents.</returns>
+        public string FileTextInput()
         {
+            ConsoleGui.WriteLine("Please enter the absolute filepath for your text file, " +
+                                 "or [Q] to quit and [B] to go back.");
+            ConsoleGui.SetBorder(2);
+            ConsoleGui.WriteLine("<borderTop>");
+            while (true)
+            {
+                string input = ConsoleGui.ReadLine("");
 
-            return text;
+                if (input.ToLower() == "b")
+                {
+                    ConsoleGui.WriteLine("<borderBottom>");
+                    ConsoleGui.SetBorder(1);
+                    return "<mainMenu>";
+                } else if (input.ToLower() == "q")
+                {
+                    ConsoleGui.WriteLine("<borderBottom>");
+                    ConsoleGui.SetBorder(1);
+                    return "<quit>";
+                }
+
+                // Check for file existence.
+                if (!File.Exists(input))
+                {
+                    ConsoleGui.WriteLine("\u001b[31mFile doesn't seem to exist. Please try again.\u001b[0m");
+                    continue;
+                }
+                ConsoleGui.WriteLine("<borderBottom>");
+                
+                Text = File.ReadAllText(input);
+                ConsoleGui.SetBorder(1);
+                return Text;
+            }
         }
 
     }

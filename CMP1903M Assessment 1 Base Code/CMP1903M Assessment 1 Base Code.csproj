@@ -8,6 +8,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DocumentationFile>bin\Debug\net6.0\CMP1903M Assessment 1 Base Code.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="CMP1903M Assessment 1 Base Code.GlobalUsings.g.cs" />
   </ItemGroup>
