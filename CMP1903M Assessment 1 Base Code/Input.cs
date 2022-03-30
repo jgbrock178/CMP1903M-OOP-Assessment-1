@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace CMP1903M_Assessment_1_Base_Code
 {
     /// <summary>
@@ -13,8 +8,10 @@ namespace CMP1903M_Assessment_1_Base_Code
     {
         /// <value>
         /// The <c>text</c> property represents the manual text input via the user.
+        /// Other classes can access the value, but only this class can set it.
+        /// Example of ENCAPSULATION.
         /// </value>
-        public string Text { get; private set; } = "";
+        private string Text { get; set; } = "";
 
         /// <summary>
         /// Prompts the user to enter text. Will accept multiple lines of text.
@@ -24,35 +21,33 @@ namespace CMP1903M_Assessment_1_Base_Code
         public string ManualTextInput()
         {
             Text = "";
-            bool terminateInput = false;
-            bool correctedText = false;
-            
-            ConsoleGUI.WriteLine("",1);
-            ConsoleGUI.WriteLine("Enter your text. You can use the enter key for new lines. When finished, " +
-                "enter double semi-colons (;;) at the end of a line. ", 1);
 
-            ConsoleGUI.WriteLine("Note that any double semi-colons in the middle of a sentence will be corrected " +
-                "to one semi-colon for you. Double spaces will also be corrected.",
-                1);
-            ConsoleGUI.WriteLine("<borderTop>", 2, false);
+            ConsoleGui.WriteLine("");
+            ConsoleGui.WriteLine("Enter your text. You can use the enter key for new lines. When finished, " +
+                "enter double semi-colons (;;) at the end of a line. ");
+
+            ConsoleGui.WriteLine("Note that any double semi-colons in the middle of a sentence will be corrected " +
+                "to one semi-colon for you. Double spaces will also be corrected.");
+            ConsoleGui.SetBorder(2);
+            ConsoleGui.WriteLine("<borderTop>");
 
             while (true)
             {
-                string input = ConsoleGUI.ReadLine("", 2);
+                string input = ConsoleGui.ReadLine("");
                 input = input.Replace("  ", " ");
 
                 // Check and replace double semi-colons in middle of input.
                 if (input.Length > 2 && input.Trim().Remove(input.Length - 2, 2).Contains(";;"))
                 {
                     input = input.Replace(";;", "; ");
-                    ConsoleGUI.ReplaceLine(input, 2);
+                    ConsoleGui.ReplaceLine(input);
                 }
 
                 // Check and replace double spaces in input.
                 if (input.Length > 2 && input.Contains("  "))
                 {
                     input = input.Replace("  ", " ");
-                    ConsoleGUI.ReplaceLine(input, 2);
+                    ConsoleGui.ReplaceLine(input);
                 }
 
                 if (input.Trim().EndsWith(";;"))
@@ -62,12 +57,13 @@ namespace CMP1903M_Assessment_1_Base_Code
                     if (input.Length > 0)
                     {
                         Text += input;
-                        ConsoleGUI.WriteLine("<borderBottom>", 2);
+                        ConsoleGui.WriteLine("<borderBottom>");
                     }
                     else
                     {
-                        ConsoleGUI.ReplaceLine("<borderBottom>", 2);
+                        ConsoleGui.ReplaceLine("<borderBottom>");
                     }
+                    ConsoleGui.SetBorder(1);
                     return Text;
                 }
                 else
@@ -77,37 +73,42 @@ namespace CMP1903M_Assessment_1_Base_Code
             }
         }
 
-        //Method: fileTextInput
-        //Arguments: string (the file path)
-        //Returns: string
-        //Gets text input from a .txt file
-        public string fileTextInput()
+        /// <summary>
+        /// Prompts the user for a filepath and then loads the contents of te file.
+        /// </summary>
+        /// <returns>String representation of the file contents.</returns>
+        public string FileTextInput()
         {
-            ConsoleGUI.WriteLine("Please enter the absolute filepath for your text file, or [Q] to quit and [B] to go back.", 1);
-            ConsoleGUI.WriteLine("<borderTop>", 2);
+            ConsoleGui.WriteLine("Please enter the absolute filepath for your text file, " +
+                                 "or [Q] to quit and [B] to go back.");
+            ConsoleGui.SetBorder(2);
+            ConsoleGui.WriteLine("<borderTop>");
             while (true)
             {
-                string input = ConsoleGUI.ReadLine("", 2);
+                string input = ConsoleGui.ReadLine("");
 
                 if (input.ToLower() == "b")
                 {
-                    ConsoleGUI.WriteLine("<borderBottom>", 2);
-                    return "<mainmenu>";
+                    ConsoleGui.WriteLine("<borderBottom>");
+                    ConsoleGui.SetBorder(1);
+                    return "<mainMenu>";
                 } else if (input.ToLower() == "q")
                 {
-                    ConsoleGUI.WriteLine("<borderBottom>", 2);
+                    ConsoleGui.WriteLine("<borderBottom>");
+                    ConsoleGui.SetBorder(1);
                     return "<quit>";
                 }
 
                 // Check for file existence.
                 if (!File.Exists(input))
                 {
-                    ConsoleGUI.WriteLine("\u001b[31mFile doesn't seem to exist. Please try again.\u001b[0m", 2);
+                    ConsoleGui.WriteLine("\u001b[31mFile doesn't seem to exist. Please try again.\u001b[0m");
                     continue;
                 }
-                ConsoleGUI.WriteLine("<borderBottom>", 2);
+                ConsoleGui.WriteLine("<borderBottom>");
                 
                 Text = File.ReadAllText(input);
+                ConsoleGui.SetBorder(1);
                 return Text;
             }
         }

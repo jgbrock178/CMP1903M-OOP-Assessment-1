@@ -1,123 +1,136 @@
 ﻿//Base code project for CMP1903M Assessment 1
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
-namespace CMP1903M_Assessment_1_Base_Code
+namespace CMP1903M_Assessment_1_Base_Code;
+
+/// <summary>
+/// Main program.
+/// </summary>
+public static class Program
 {
-    class Program
+    /// <summary>
+    /// Main method for program execution.
+    /// </summary>
+    public static void Main()
     {
-        static void Main()
+        // Force UTF-8 output
+        Console.OutputEncoding = Encoding.UTF8;
+
+        string text = "";
+        Input input = new Input();
+            
+        ConsoleGui.Clear();
+        ConsoleGui.SetBorder(1);
+        ConsoleGui.ConsoleLeftPadding = 4;
+        ConsoleGui.PrintTitle();
+        while (true)
         {
-            // Force UTF-8 output
-            Console.OutputEncoding = Encoding.UTF8;
+            ConsoleGui.SetBorder(1);
+            ConsoleGui.PrintMainMenu();
+            string option = ConsoleGui.GetValidatedUserInput("Choose option:", 
+                new[] { "1", "2", "3", "4" });
 
-            string text = "";
-            Input input = new Input();
-                
-            ConsoleGUI.Clear();
-            ConsoleGUI.PrintTitle();
-            while (true)
+            switch (option)
             {
-                ConsoleGUI.PrintMainMenu();
-                string option = ConsoleGUI.GetValidatedUserInput("Choose option:",
-                    new string[] { "1", "2", "3", "4" },
-                    borderLevel: 1, 
-                    closingBorder: true);
-
-                if (option == "1")
-                {
+                case "1":
                     text = input.ManualTextInput();
-                }
-                else if (option == "2")
+                    break;
+                case "2":
+                    text = input.FileTextInput();
+                    break;
+                case "3":
                 {
-                    text = input.fileTextInput();
-                }
-                else if (option == "3")
-                {
-                    ConsoleGUI.WriteLine("<hr>", 1);
-                    ConsoleGUI.WriteLine("Analysis Validation", 1);
-                    ConsoleGUI.WriteLine("<hr>", 1);
-                    if (TestAnalysis.ValidateTestFile())
-                    {
-                        ConsoleGUI.WriteLine("Test file validated - Analysis working correctly.", 1);
-                    }
-                    else
-                    {
-                        ConsoleGUI.WriteLine("Oh no! Test file NOT validated. Something's wrong.", 1);
-                    }
-                    ConsoleGUI.WriteLine("<hr>", 1);
-                    ConsoleGUI.WriteLine("Test Validation Complete!", 1);
-                    ConsoleGUI.WriteLine("<hr>");
+                    ConsoleGui.WriteLine("<hr>");
+                    ConsoleGui.WriteLine("Analysis Validation");
+                    ConsoleGui.WriteLine("<hr>");
+                
+                    // Validate the Analyse.AnalyseText method to know text.
+                    ConsoleGui.WriteLine(TestAnalysis.ValidateTestFile()
+                        ? "Test file validated - Analysis working correctly."
+                        : "Oh no! Test file NOT validated. Something's wrong.");
+                    ConsoleGui.WriteLine("<hr>");
+                    ConsoleGui.WriteLine("Test Validation Complete!");
+                    ConsoleGui.SetBorder(0);
+                    ConsoleGui.WriteLine("<hr>");
+                    ConsoleGui.SetBorder(1);
+                
+                    // Pause for effect.
                     Thread.Sleep(1000);
                     continue;
                 }
+            }
 
-                if (text == "<mainmenu>")
+            if (text == "<mainMenu>")
+            {
+                ConsoleGui.WriteLine("<hr>");
+                continue;
+            } 
+            
+            if (text == "<quit>" || option == "4")
+            {
+                option = ConsoleGui.GetValidatedUserInput("Are you sure you want to quit? [Y]es or [N]o:",
+                    new[] {"y", "n"});
+                if (option == "y")
                 {
-                    continue;
-                } 
-                else if (text == "<quit>" || option == "4")
-                {
-                    option = ConsoleGUI.GetValidatedUserInput("Are you sure you want to quit? [Y]es or [N]o:",
-                        new string[] {"y", "n"}, borderLevel: 1, closingBorder: true);
-                    if (option == "y")
-                    {
-                        ConsoleGUI.WriteLine("<hr>", 1);
-                        ConsoleGUI.WriteLine("Program terminating. Goodbye!", 1);
-                        ConsoleGUI.WriteLine("<hr>");
-                        Environment.Exit(0);
-                    }
-                    else
-                    {
-                        ConsoleGUI.WriteLine("<hr>", 1);
-                        continue;
-                    }
-                }
-
-                Analyse analysis = new Analyse();
-
-                Dictionary<string, int> wordAnalysis = analysis.WordList(text);
-                int maxWordLength = 0;
-                if (wordAnalysis.Count > 0)
-                {
-                    maxWordLength = wordAnalysis.Max(x => x.Key.Length);
-                }
-
-                Report.outputToConsole(analysis.AnalyseText(text), analysis.LetterFrequency(text),
-                    wordAnalysis);
-                
-                ConsoleGUI.WriteLine("<hr>", 1);
-
-                if (wordAnalysis.Count > 0 && maxWordLength >= 7)
-                {
-                    option = ConsoleGUI.GetValidatedUserInput("Write long words to file? [Y]es or [N]o:",
-                        new string[] {"y", "n"}, borderLevel: 1, closingBorder: true);
-
-                    if (option == "y")
-                    {
-                        string filename = ConsoleGUI.ReadLine("Enter filename:", 1, true);
-                        filename = Report.longWordsToFile(analysis.WordList(text), filename);
-                        ConsoleGUI.WriteLine($"File saved as {filename}", 1);
-                    
-                    }
-                }
-                else if (wordAnalysis.Count == 0)
-                {
-                    ConsoleGUI.WriteLine("There are no words.", 1);
+                    ConsoleGui.WriteLine("<hr>");
+                    ConsoleGui.WriteLine("Program terminating. Goodbye!");
+                    ConsoleGui.SetBorder(0);
+                    ConsoleGui.WriteLine("<hr>");
+                    Environment.Exit(0);
                 }
                 else
                 {
-                    ConsoleGUI.WriteLine("There are no long words (with 7 or more characters).", 1);
+                    ConsoleGui.WriteLine("<hr>");
+                    continue;
                 }
-                ConsoleGUI.WriteLine("<hr>", 1);
-                ConsoleGUI.WriteLine("Analysis Complete!", 1);
-                ConsoleGUI.WriteLine("<hr>");
-                Thread.Sleep(1000);
             }
+
+            Analyse analysis = new Analyse();
+
+            Dictionary<string, int> wordAnalysis = analysis.WordList(text);
+            int maxWordLength = 0;
+            if (wordAnalysis.Count > 0)
+            {
+                // This gets the length of the maximum word length. This is so the program knows whether to prompt
+                // the user to save a long words file. No point if no long words.
+                maxWordLength = wordAnalysis.Max(x => x.Key.Length);
+            }
+
+            Report.OutputToConsole(analysis.AnalyseText(text), analysis.LetterFrequency(text),
+                wordAnalysis);
+            
+            ConsoleGui.WriteLine("<hr>");
+
+            if (wordAnalysis.Count > 0 && maxWordLength >= 7)
+            {
+                option = ConsoleGui.GetValidatedUserInput("Write long words to file? [Y]es or [N]o:",
+                    new[] {"y", "n"});
+
+                if (option == "y")
+                {
+                    string filename = ConsoleGui.ReadLine("Enter filename:");
+                    filename = Report.LongWordsToFile(analysis.WordList(text), filename);
+                    ConsoleGui.WriteLine($"File saved as {filename}");
+                
+                }
+            }
+            // No words entered - only numbers and special characters.
+            else if (wordAnalysis.Count == 0)
+            {
+                ConsoleGui.WriteLine("There are no words.");
+            }
+            // No words wit a length >= 7 characters.
+            else
+            {
+                ConsoleGui.WriteLine("There are no long words (with 7 or more characters).");
+            }
+            ConsoleGui.WriteLine("<hr>");
+            ConsoleGui.WriteLine("Analysis Complete!");
+            ConsoleGui.SetBorder(0);
+            ConsoleGui.WriteLine("<hr>");
+            ConsoleGui.SetBorder(1);
+            // Pause for effect.
+            Thread.Sleep(1000);
         }
     }
 }

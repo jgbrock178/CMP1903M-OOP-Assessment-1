@@ -1,59 +1,124 @@
-using System.Collections.Generic;
 
 namespace CMP1903M_Assessment_1_Base_Code;
 
-public class ConsoleGUI
+/// <summary>
+/// Methods for interacting with the console. Also wraps the <c>Console.WriteLine</c> and <c>Console.Readline</c> for a
+/// better user experience. As such, no code should reference the <c>Console</c> class except this one.
+/// </summary>
+public static class ConsoleGui
 {
-    public static int ConsoleWidth = 80;
-    private static int ConsoleLines = 0;
+    /// <summary>
+    /// Controls the width of the output to the console.
+    /// </summary>
+    public static int ConsoleWidth { get; set; } = 80;
+
+    /// <summary>
+    /// Controls the amount of padding in the terminal.
+    /// </summary>
+    public static int ConsoleLeftPadding { get; set; }
+
+    /// <summary>
+    /// Tracks how many lines has output to the console. This is to ensure the border outputs a "punched hole" on every
+    /// other line.
+    /// Use of ENCAPSULATION and ABSTRACTION here as only this class needs to know this.
+    /// </summary>
+    private static int _consoleLines;
     
     /// <summary>
-    /// Clears the terminal screen.
+    /// Whether the border should be closed on the right side. Generally true, but if an unknown user input length is
+    /// possible then better to not close the border.
+    /// Use of ENCAPSULATION and ABSTRACTION here as only this class needs to know this.
+    /// </summary>
+    private static bool _closeBorder = true;
+    
+    /// <summary>
+    /// A method to force the border type/style to be a certain way. Should be reset to an empty string once used.
+    /// Use of ENCAPSULATION and ABSTRACTION here as only this class needs to know this.
+    /// </summary>
+    private static string _borderOverride = "";
+
+    /// <summary>
+    /// The border level to be output. Valid valued are 0, 1 and 2.
+    /// Use of ENCAPSULATION and ABSTRACTION here as only this class needs to know this.
+    /// </summary>
+    private static int _borderLevel;
+
+    /// <summary>
+    /// A way to specify how the console should look. Console will continue to look this way until called again.
+    /// Example of EXCEPTION HANDLING.
+    /// </summary>
+    /// <param name="borderLevel">The border level to use. Valid values are 0, 1 or 2.</param>
+    /// <param name="closeBorder">whether to close the border. Default value is true.</param>
+    /// <param name="borderOverride">if set, forces the next line to be a certain border style.</param>
+    /// <exception cref="InvalidBorderLevelException"></exception>
+    /// <exception cref="InvalidBorderTypeException"></exception>
+    public static void SetBorder(int borderLevel, bool closeBorder = true, string borderOverride = "")
+    {
+        string[] validBorderTypes = new string[] { "punched", "plain" };
+        
+        if (borderLevel > 2)
+        {
+            throw new InvalidBorderLevelException(borderLevel);
+        }
+
+        if (borderOverride != "" && !validBorderTypes.Contains(borderOverride))
+        {
+            throw new InvalidBorderTypeException(borderOverride);
+        }
+        
+        _borderLevel = borderLevel;
+        _borderOverride = borderOverride;
+        _closeBorder = closeBorder;
+    }
+
+    /// <summary>
+    /// Clears the terminal screen and moves the cursor to the top-left.
+    /// Included so all calls in other classes can ignore the inbuilt <c>Console</c> class. Also means this can be
+    /// tested for.
     /// </summary>
     public static void Clear()
     {
-        Console.Write($"\u001b[2J\x1b[H\x1b[J");
+        Console.Clear();
     }
 
     /// <summary>
     /// Clears the current terminal line from the cursor to the end of the line.
+    /// Use of ABSTRACTION and ENCAPSULATION. When used, user doesn't need to know implementation. Plus set to private as
+    /// only used by this class.
     /// </summary>
-    public static void ClearLine()
+    private static void ClearLine()
     {
         Console.Write($"\u001b[0K");
     }
 
     /// <summary>
-    /// Wrappper the <c>console.ReadLine()</c>. Prints the prompt, moves the cursor up a line and then to 2 spaces after
+    /// Wrapper for the <c>console.ReadLine()</c>. Prints the prompt, moves the cursor up a line and then to 2 spaces after
     /// the end of the prompt. Passes through options to <c>WriteLine</c> method for formatting.
+    /// Example of ABSTRACTION.
     /// </summary>
     /// <param name="prompt">the text to the shown to the user.</param>
-    /// <param name="borderLevel">how many borders to show</param>
-    /// <param name="closingBorder">whether to show a closing border.</param>
-    /// <param name="borderOverride">defines the border style if needed.</param>
     /// <returns>Returns what the user has typed into the console.</returns>
-    public static string ReadLine(string prompt, int borderLevel = 0, bool closingBorder = true, string borderOverride = "")
+    public static string ReadLine(string prompt)
     {
-        int cursorPromptPosition = prompt.Length + 1;
+        int cursorPromptPosition = ConsoleLeftPadding + prompt.Length + 1;
         if (prompt.Length == 0)
         {
             cursorPromptPosition -= 1;
         }
         
-        if (borderLevel >= 1)
+        if (_borderLevel >= 1)
         {
             cursorPromptPosition += 6;
         }
-        if (borderLevel >= 2)
+        if (_borderLevel >= 2)
         {
             cursorPromptPosition += 2;
         }
         
-        WriteLine(prompt, borderLevel, closingBorder, borderOverride);
-        MoveUp(1);
+        WriteLine(prompt);
+        MoveUp();
         MoveRight(cursorPromptPosition);
-        string output = Console.ReadLine()!;
-        return output;
+        return Console.ReadLine()!;
     }
 
     /// <summary>
@@ -63,25 +128,19 @@ public class ConsoleGUI
     /// </summary>
     /// <param name="content">
     /// the content for the line(s). If set to any of the following, then will output special lines:
-    /// "<topBorder>" - Will output a top border if the <c>borderLevel</c> is 2.
-    /// "<bottomBorder>" - Will output a bottom border if the <c>borderLevel</c> is 2.
-    /// "<hr>" - will output a horizontal line at any border level.
-    /// </param>
-    /// <param name="borderLevel">how many border to output. Can be 0, 1 or 2.</param>
-    /// <param name="closingBorder">whether to close the outer border.</param>
-    /// <param name="borderOverride">
-    /// used to override the border style. Valid value is "punched".
-    /// Any other non-empty string results in a plain border.
+    /// "&lt;topBorder&gt;" - Will output a top border if the <c>borderLevel</c> is 2.
+    /// "&lt;bottomBorder&gt;" - Will output a bottom border if the <c>borderLevel</c> is 2.
+    /// "&lt;hr&gt;" - will output a horizontal line at any border level.
     /// </param>
     /// <returns>Returns the content input wrapped in a border.</returns>
-    private static string FormatAsPaper(string content, int borderLevel = 0, bool closingBorder = true, string borderOverride = "")
+    private static string FormatAsPaper(string content)
     {
-        string output = "";
-        int contentWidth = ConsoleWidth;
+        string output = new String(' ', ConsoleLeftPadding) + "";
+        int contentWidth = ConsoleLeftPadding + ConsoleWidth;
 
-        if (borderLevel >= 1)
+        if (_borderLevel >= 1)
         {
-            if (PunchedBorder() || borderOverride == "punched")
+            if (PunchedBorder() || _borderOverride == "punched")
             {
                 output += "┃ O ┃";
             }
@@ -91,22 +150,22 @@ public class ConsoleGUI
             }
         }
 
-        if (borderLevel >= 2 && content.Trim() != "<borderTop>" && content.Trim() != "<borderBottom>")
+        if (_borderLevel >= 2 && content.Trim() != "<borderTop>" && content.Trim() != "<borderBottom>")
         {
             output += " │";
         }
-        else if (borderLevel >= 2 && content.Trim() == "<borderTop>")
+        else if (_borderLevel >= 2 && content.Trim() == "<borderTop>")
         {
             output += " ╭";
         }
-        else if (borderLevel >= 2 && content.Trim() == "<borderBottom>")
+        else if (_borderLevel >= 2 && content.Trim() == "<borderBottom>")
         {
             output += " ╰";
         }
         
         // Sets the available width - removing space for closing border if needed.
         contentWidth -= output.Length;
-        if (closingBorder && borderLevel == 1)
+        if (_closeBorder && _borderLevel == 1)
         {
             contentWidth -= 5;
         }
@@ -125,7 +184,7 @@ public class ConsoleGUI
                 break;
         }
         
-        if (closingBorder && borderLevel == 1)
+        if (_closeBorder && _borderLevel == 1)
         {
             if (PunchedBorder())
             {
@@ -136,58 +195,55 @@ public class ConsoleGUI
                 output += "┃   ┃";
             }
         }
-
+        
         return output;
     }
 
     /// <summary>
     /// Wrapper for <c>console.WriteLine()</c> that will ensure all lines are bordered appropriately, as well as
-    /// constrained to the <c>ConsoleWidth</c> specified on the class. Also increases <c>ConsoleLines</c> to ensure the
+    /// constrained to the <c>ConsoleWidth</c> specified on the class. Also increases <c>_consoleLines</c> to ensure the
     /// correct border style can be output. <see cref="FormatAsPaper"/>
     /// </summary>
     /// <param name="content">the content to be output.</param>
-    /// <param name="borderLevel">the border level to be styled.</param>
-    /// <param name="closingBorder">whether to include a closing border.</param>
-    /// <param name="borderOverride">allows manual border to be set.</param>
-    public static void WriteLine(string content, int borderLevel = 0, bool closingBorder = true, string borderOverride = "")
+    public static void WriteLine(string content)
     {
         List<string> splitText = SplitTextByLength(content, ConsoleWidth - 12);
 
         foreach (string line in splitText)
         {
-            ConsoleLines += 1;
-            Console.WriteLine($"{FormatAsPaper(line, borderLevel, closingBorder, borderOverride)}\u001b[0K");   
+            _consoleLines += 1;
+            Console.WriteLine($"{FormatAsPaper(line)}\u001b[0K");   
         }
+
+        // Reset _borderOverride as line has been output.
+        _borderOverride = "";
     }
 
     /// <summary>
     /// Moves the cursor up one line and outputs a line in the same was as <see cref="WriteLine"/>, except
-    /// <c>ConsoleLines</c> is NOT incremented. This is because the line is replacing a line already output.
+    /// <c>_consoleLines</c> is NOT incremented. This is because the line is replacing a line already output.
     /// </summary>
     /// <param name="content">the content to be printed.</param>
-    /// <param name="borderLevel">the border level to be styled.</param>
-    /// <param name="closingBorder">whether to include a closing border.</param>
-    /// <param name="borderOverride">allows border style to be set.</param>
-    public static void ReplaceLine(string content, int borderLevel = 0, bool closingBorder = true, string borderOverride = "")
+    public static void ReplaceLine(string content)
     {
         MoveUp();
-        Console.WriteLine($"{FormatAsPaper(content, borderLevel, closingBorder, borderOverride)}\u001b[0K");
+        Console.WriteLine($"{FormatAsPaper(content)}\u001b[0K");
+        
+        // Reset _borderOverride as line has been output.
+        _borderOverride = "";
     }
     
     /// <summary>
-    /// Whether to output a printed border or not, based on the <c>ConsoleLines</c> value.
+    /// Whether to output a printed border or not, based on the <c>_consoleLines</c> value.
     /// </summary>
     /// <returns>Boolean value whether to output a punched style border.</returns>
     private static bool PunchedBorder()
     {
-        if (ConsoleLines % 2 == 0)
+        if (_consoleLines % 2 == 0)
         {
             return false;
         }
-        else
-        {
-            return true;
-        }
+        return true;
     }
     
     /// <summary>
@@ -197,25 +253,20 @@ public class ConsoleGUI
     /// <param name="prompt">the text to show to the user.</param>
     /// <param name="validInputs">a string array of valid values.</param>
     /// <param name="caseSensitive">whether the values are case sensitive. Default is false.</param>
-    /// <param name="borderLevel">the border level to be styled.</param>
-    /// <param name="closingBorder">whether to include a closing border.</param>
     /// <returns>Returns a string of the valid value entered by the user.</returns>
-    public static string GetValidatedUserInput(string prompt, string[] validInputs, bool caseSensitive = false, 
-        int borderLevel = 0, bool closingBorder = true)
+    public static string GetValidatedUserInput(string prompt, string[] validInputs, bool caseSensitive = false)
     {
         string option = "";
-        string borderOverride = "";
-        bool errorShown = false;
         bool borderPunched = PunchedBorder();
         
         if (!borderPunched)
         {
-            borderOverride = "punched";
+            _borderOverride = "punched";
         }
         
         while (!validInputs.Contains(option))
         {
-            option = ReadLine(prompt, borderLevel, closingBorder, borderOverride);
+            option = ReadLine(prompt);
             
             // Ensure all valid options and option is lowercase if not case-sensitive.
             if (!caseSensitive)
@@ -230,9 +281,8 @@ public class ConsoleGUI
             
             if (!validInputs.Contains(option))
             {
-                WriteLine("Invalid option, please try again.", borderLevel, closingBorder);
+                WriteLine("Invalid option, please try again.");
                 MoveUp(2);
-                errorShown = true;
             }
         }
         ClearLine();
@@ -244,17 +294,17 @@ public class ConsoleGUI
     /// </summary>
     public static void PrintTitle()
     {
-        WriteLine("<hr>", 1);
-        WriteLine(@"  _______        _                          _                     ", 1);
-        WriteLine(@" |__   __|      | |       /\               | |                    ", 1);
-        WriteLine(@"    | | _____  _| |_     /  \   _ __   __ _| |_   _ ___  ___ _ __ ", 1);
-        WriteLine(@"    | |/ _ \ \/ / __|   / /\ \ | '_ \ / _` | | | | / __|/ _ \ '__|", 1);
-        WriteLine(@"    | |  __/>  <| |_   / ____ \| | | | (_| | | |_| \__ \  __/ |   ", 1);
-        WriteLine(@"    |_|\___/_/\_\\__| /_/    \_\_| |_|\__,_|_|\__, |___/\___|_|   ", 1);
-        WriteLine(@"                                               __/ |              ", 1);
-        WriteLine(@"                                              |___/               ", 1);
-        WriteLine("", 1);
-        WriteLine("<hr>", 1);
+        WriteLine("<hr>");
+        WriteLine(@"  _______        _                          _                     ");
+        WriteLine(@" |__   __|      | |       /\               | |                    ");
+        WriteLine(@"    | | _____  _| |_     /  \   _ __   __ _| |_   _ ___  ___ _ __ ");
+        WriteLine(@"    | |/ _ \ \/ / __|   / /\ \ | '_ \ / _` | | | | / __|/ _ \ '__|");
+        WriteLine(@"    | |  __/>  <| |_   / ____ \| | | | (_| | | |_| \__ \  __/ |   ");
+        WriteLine(@"    |_|\___/_/\_\\__| /_/    \_\_| |_|\__,_|_|\__, |___/\___|_|   ");
+        WriteLine(@"                                               __/ |              ");
+        WriteLine(@"                                              |___/               ");
+        WriteLine("");
+        WriteLine("<hr>");
     }
     
     /// <summary>
@@ -262,29 +312,31 @@ public class ConsoleGUI
     /// </summary>
     public static void PrintMainMenu()
     {
-        WriteLine("What would you like to do?", 1);
-        WriteLine("", 1);
-        WriteLine("  1) Manually write text", 1);
-        WriteLine("  2) Import text file", 1);
-        WriteLine("  3) Perform analyse test", 1);
-        WriteLine("  4) Quit", 1);
-        WriteLine("<hr>", 1);
+        WriteLine("What would you like to do?");
+        WriteLine("");
+        WriteLine("  1) Manually write text");
+        WriteLine("  2) Import text file");
+        WriteLine("  3) Perform analyse test");
+        WriteLine("  4) Quit");
+        WriteLine("<hr>");
     }
 
     /// <summary>
     /// Moves the console cursor up.
+    /// Example of ENCAPSULATION.
     /// </summary>
     /// <param name="lines">the number of lines to move up by. Default is 1.</param>
-    public static void MoveUp(int lines = 1)
+    private static void MoveUp(int lines = 1)
     {
         Console.Write($"\u001b[{lines}A");
     }
 
     /// <summary>
     /// Moves the console cursor to the right.
+    /// Example of ENCAPSULATION.
     /// </summary>
     /// <param name="chars">the number of characters to move by. Default is 1.</param>
-    public static void MoveRight(int chars = 1)
+    private static void MoveRight(int chars = 1)
     {
         Console.Write($"\u001b[{chars}C");
     }

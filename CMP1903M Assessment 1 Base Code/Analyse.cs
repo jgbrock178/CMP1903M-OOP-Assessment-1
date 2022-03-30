@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace CMP1903M_Assessment_1_Base_Code
 {
+    /// <summary>
+    /// Methods to perform various text analysis.
+    /// </summary>
     public class Analyse
     {
         /// <summary>
@@ -17,19 +16,20 @@ namespace CMP1903M_Assessment_1_Base_Code
         /// <returns>Dictionary containing the names and values of each metric.</returns>
         public Dictionary<string, int> AnalyseText(string input)
         {
-            Dictionary<string, int> values = new Dictionary<string, int>();
-
-            values.Add("words", CountWords(input));
-            values.Add("unique words", WordList(input).Count);
-            values.Add("sentences", CountSentenceTerminators(input));
-            values.Add("characters", CountCharacters(input));
-            values.Add("vowels", CountVowels(input));
-            values.Add("consonants", CountConsonants(input));
-            values.Add("spaces", CountSpaces(input));
-            values.Add("uppercase letters", CountUppercaseLetters(input));
-            values.Add("lowercase letters", CountLowercaseLetters(input));
-            values.Add("numbers", CountNumbers(input));
-            values.Add("number characters", CountNumberCharacters(input));
+            Dictionary<string, int> values = new Dictionary<string, int>
+            {
+                {"words", CountWords(input)},
+                {"unique words", WordList(input).Count},
+                {"sentences", CountSentenceTerminators(input)},
+                {"characters", CountCharacters(input)},
+                {"vowels", CountVowels(input)},
+                {"consonants", CountConsonants(input)},
+                {"spaces", CountSpaces(input)},
+                {"uppercase letters", CountUppercaseLetters(input)},
+                {"lowercase letters", CountLowercaseLetters(input)},
+                {"numbers", CountNumbers(input)},
+                {"number characters", CountNumberCharacters(input)}
+            };
 
             return values;
         }
@@ -172,7 +172,7 @@ namespace CMP1903M_Assessment_1_Base_Code
         /// Counts the number of spaces in the input text.
         /// </summary>
         /// <param name="text">the text to be analysed.</param>
-        /// <returns>Integer representng the number of spaces.</returns>
+        /// <returns>Integer representing the number of spaces.</returns>
         int CountSpaces(string text)
         {
             return CountRegexMatches(text, @"[ ]");
