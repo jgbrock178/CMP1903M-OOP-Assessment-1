@@ -45,7 +45,7 @@ public static class Program
                     ConsoleGui.WriteLine("<hr>");
                 
                     // Validate the Analyse.AnalyseText method to know text.
-                    ConsoleGui.WriteLine(TestAnalysis.ValidateTestFile()
+                    ConsoleGui.WriteLine(TestAnalysis.ValidateTestFile("known_test_file.txt")
                         ? "Test file validated - Analysis working correctly."
                         : "Oh no! Test file NOT validated. Something's wrong.");
                     ConsoleGui.WriteLine("<hr>");

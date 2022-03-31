@@ -5,36 +5,41 @@ namespace CMP1903M_Assessment_1_Base_Code;
 /// </summary>
 public static class TestAnalysis
 {
-    static string TestText = "Object Oriented programming is a programming paradigm that relies on the concept of classes and objects." +
-        "A class is an abstract blueprint used to create more specific, concrete objects. Classes often represent broad categories, " +
-        "like Car or Dog that share attributes. These classes define what attributes an instance of this type will have, like colour," +
-        " but not the value of those attributes for a specific object. Classes can also contain functions, called methods available only" +
-        " to objects of that type. These functions are defined within the class and perform some action helpful to that specific type of object.";
-
     /// <summary>
     /// Validates a known file analysed by <c>Analyse.AnalyseText()</c> and writes the results to the console.
     /// </summary>
     /// <returns>Returns a boolean representing whether the analysis matches the known values.</returns>
-    public static bool ValidateTestFile()
+    public static bool ValidateTestFile(string filename)
     {
+        string testText = "";
+        try
+        {
+            testText = File.ReadAllText("known_test_file.txt");
+        }
+        catch (FileNotFoundException)
+        {
+            ConsoleGui.WriteLine("Can't find the known test file :(");
+            return false;
+        }
+        
         Dictionary<string, int> knownValues = new Dictionary<string, int>
         {
             {"words", 98},
             {"unique words", 64},
-            {"sentences", 5},
-            {"characters", 613},
+            {"sentences", 6},
+            {"characters", 615},
             {"vowels", 189},
             {"consonants", 317},
             {"uppercase letters", 9},
             {"lowercase letters", 497},
             {"numbers", 0},
             {"number characters", 0},
-            {"spaces", 96}
+            {"spaces", 98}
         };
 
         Analyse analysis = new Analyse();
 
-        Dictionary<string, int> testAnalysis = analysis.AnalyseText(TestText);
+        Dictionary<string, int> testAnalysis = analysis.AnalyseText(testText);
         bool testSuccess = true;
         
         int maxMetricLength = knownValues.Max(x => x.Key.Length);
