@@ -11,7 +11,7 @@ public static class Program
     /// <summary>
     /// Main method for program execution.
     /// </summary>
-    public static void Main()
+    public static int Main()
     {
         // Force UTF-8 output
         Console.OutputEncoding = Encoding.UTF8;
@@ -76,7 +76,8 @@ public static class Program
                     ConsoleGui.WriteLine("Program terminating. Goodbye!");
                     ConsoleGui.SetBorder(0);
                     ConsoleGui.WriteLine("<hr>");
-                    Environment.Exit(0);
+                    // Exit the program
+                    return 0;
                 }
                 else
                 {
