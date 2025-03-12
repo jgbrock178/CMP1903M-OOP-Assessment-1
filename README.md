@@ -1,4 +1,4 @@
-# MComp Computer Science - Level 1
+# BSc (Hons) Computer Science - Level 1
 ## CMP1903M Objected-Oriented Programming: Assessment 1
 Author: John Brock
  
